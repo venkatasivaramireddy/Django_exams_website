@@ -1,0 +1,73 @@
+
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <div align="center">
+    <form method="post">
+        {% csrf_token %}
+        <h3> Admin Question Form </h3>
+    <input type="text" required placeholder="Enter Questions" id="question" width="500"><br> <br>
+    <input type="text" required placeholder="Enter option1" id="option1">
+    <input type="text" required placeholder="Enter option2" id="option2"><br>
+    <input type="text" required placeholder="Enter option3" id="option3">
+    <input type="text" required placeholder="Enter option4" id="option4"><br><br>
+    <input type="text" required placeholder="correct Answer" id="answer"><br><br>
+    <button id="added">Click to Add Next Question</button>
+    <button type="submit" onclick="submitData()" formaction="/interface/submit/">LocalStorage</button>
+    </form>
+</div>
+
+<script>
+        let question_list = [];
+        var today = new Date();
+        const addquestion = (ev)=>{
+            ev.preventDefault();  //to stop the form submitting
+
+            let qus = {
+                id: today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate(),
+                question: document.getElementById('question').value,
+                options: {option_1: document.getElementById("option1").value,
+                        option_2:  document.getElementById("option2").value,
+                        option_3:  document.getElementById("option3").value,
+                        option_4:  document.getElementById("option4").value},
+                answer: document.getElementById('answer').value,
+                        };
+            question_list.push(qus);
+            document.forms[0].reset();
+            localStorage.setItem('QuestionList', JSON.stringify(question_list));
+        };
+        document.addEventListener('DOMContentLoaded', ()=>{
+            document.getElementById('submit').addEventListener('click', addquestion);
+        });
+
+function submitData() {
+  // send result to server
+    var data = localStorage.getItem("QuestionList");
+    {#var userid = {{user.userid}};#}
+    console.log(data);
+
+    $.ajax({
+      url:"/interface/submit/",
+      type:"POST",
+      data: { group:data,
+              csrfmiddlewaretoken: '{{ csrf_token }}'},
+      success:function() {
+        alert("Submitted succeffully");
+        window.location = "/interface/";
+      }
+    })
+  }
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
